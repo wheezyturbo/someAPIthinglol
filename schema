@@ -1,0 +1,17 @@
+stores (collection)
+   store1 (document)
+      items (collection)
+         item1 (document)
+            name: "item1"
+            stock: 10
+         item2 (document)
+            name: "item2"
+            stock: 20
+   store2 (document)
+      items (collection)
+         item1 (document)
+            name: "item1"
+            stock: 15
+         item3 (document)
+            name: "item3"
+            stock: 25
