@@ -149,7 +149,8 @@ app.post('/add', (req, res) => {
     firebase.firestore().collection('stores').doc(store).get()
   .then(docSnapshot => {
     if (!docSnapshot.exists) {
-      firebase.firestore().collection('stores').doc(store).set({});
+      // firebase.firestore().collection('stores').doc(store).set({});
+      res.status(400).json({ error: 'Store does not exist' })
     }
     firebase.firestore().collection('stores').doc(store).collection('items').doc(itemName).get()
       .then(itemSnapshot => {
