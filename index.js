@@ -268,7 +268,7 @@ app.patch('/update-stock', (req, res) => {
   firebase.firestore().collection('stores').doc(store).collection('items').where('name', '==', itemName).get()
     .then(querySnapshot => {
       if (querySnapshot.empty) {
-        res.status(404).json({ error: 'Item not found in store' });
+        res.status(200).send({"status":"Item not found in store","store Name":`${store}`});
       } else {
         querySnapshot.forEach(doc => {
           firebase.firestore().collection('stores').doc(store).collection('items').doc(doc.id).update({
