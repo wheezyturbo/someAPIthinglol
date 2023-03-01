@@ -224,6 +224,7 @@ app.post('/add', (req, res) => {
     const store = req.body.store;
     const itemName = req.body.item;
     const stock = req.body.stock;
+    const price = req.body.price;
   
     firebase.firestore().collection('stores').doc(store).get()
   .then(docSnapshot => {
@@ -238,7 +239,8 @@ app.post('/add', (req, res) => {
         } else {
           firebase.firestore().collection('stores').doc(store).collection('items').doc(itemName).set({
             name: itemName,
-            stock: stock
+            stock: stock,
+            price:price,
           })
           .then(() => {
             res.json({ message: 'Item added successfully' });
