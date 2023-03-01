@@ -142,6 +142,7 @@ app.get('/api/fetch-item/:item', (req, res) => {
 
                 const storeLat = store.data().lat;
                 const storeLong = store.data().long;
+                const price = item.data().price;
                 const distance = haversine(
                   { latitude: userLat, longitude: userLong },
                   { latitude: storeLat, longitude: storeLong }
@@ -153,6 +154,7 @@ app.get('/api/fetch-item/:item', (req, res) => {
                     stock,
                     lat: storeLat,
                     long: storeLong,
+                    price: price
                   });
                 }
               }
