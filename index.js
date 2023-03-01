@@ -57,57 +57,57 @@ firebase.initializeApp(config);
 
 
 
-// //another represenation of the get request
-// app.get('/:item', (req, res) => {
-//     const itemName = req.params.item;
-//     var availability = [];
-//     let p1 = new Promise((resolve,reject)=>{
-//         firebase.firestore().collection('stores').get()
-//         .then(snapshot => {
-//             snapshot.forEach(store => {
-//                 console.log(store.id);
-//                 firebase.firestore().collection('stores').doc(store.id).collection('items').where('name', '==', itemName).get()
-//                     .then(itemSnapshot => {
-//                         itemSnapshot.forEach(item => {
-//                             console.log(item.data());
-//                             availability.push({ "store_name": store.id, "stock": item.data().stock,"lat":store.data().lat,"long":store.data().long });
-//                             console.log(availability);
-//                         });
-//                     })
-//                     .catch(error => {
-//                         console.error(error);
-//                         res.status(500).send('Error getting item availability: ', error);
-//                     });
-//             });
-//             console.log("reached");
-//             setTimeout(() => {
-//                 console.log("availability : ", availability);
-//                 resolve(true);
-//             }, 500)
-//         })
-//         .catch(error => {
-//             reject(true);
-//             console.error(error);
-//             res.status(500).send('Error getting stores: ', error);
-//         });  
-//     })
-//     p1.then(()=>{
-//         console.log(availability.length)
-//         if(availability.length!=0){
-//         res.send(availability)
-//         }
-//         else{
-//             setTimeout(()=>{
-//                 if(availability.length==0){
-//                 res.status(204).send({error:"no items found"})
-//                 }
-//                 else{
-//                     res.send(availability);
-//                 }
-//             },1000)
-//         }
-//     })
-// });
+//another represenation of the get request
+app.get('/:item', (req, res) => {
+    const itemName = req.params.item;
+    var availability = [];
+    let p1 = new Promise((resolve,reject)=>{
+        firebase.firestore().collection('stores').get()
+        .then(snapshot => {
+            snapshot.forEach(store => {
+                console.log(store.id);
+                firebase.firestore().collection('stores').doc(store.id).collection('items').where('name', '==', itemName).get()
+                    .then(itemSnapshot => {
+                        itemSnapshot.forEach(item => {
+                            console.log(item.data());
+                            availability.push({ "store_name": store.id, "stock": item.data().stock,"lat":store.data().lat,"long":store.data().long });
+                            console.log(availability);
+                        });
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        res.status(500).send('Error getting item availability: ', error);
+                    });
+            });
+            console.log("reached");
+            setTimeout(() => {
+                console.log("availability : ", availability);
+                resolve(true);
+            }, 500)
+        })
+        .catch(error => {
+            reject(true);
+            console.error(error);
+            res.status(500).send('Error getting stores: ', error);
+        });  
+    })
+    p1.then(()=>{
+        console.log(availability.length)
+        if(availability.length!=0){
+        res.send(availability)
+        }
+        else{
+            setTimeout(()=>{
+                if(availability.length==0){
+                res.status(204).send({error:"no items found"})
+                }
+                else{
+                    res.send(availability);
+                }
+            },1000)
+        }
+    })
+});
 
 
 //const haversine = require('haversine');
