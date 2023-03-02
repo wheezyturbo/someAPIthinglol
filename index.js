@@ -8,8 +8,13 @@ const pdfkit = require('pdfkit')
 const easyinvoice = require('easyinvoice');
 const fs = require('fs')
 const path = require('path')
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
+
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+
 
 // Initialize Firebase
 const config = {
@@ -808,10 +813,20 @@ function generateInvoiceNumber() {
 
 
 app.get('/stores/login', function(req, res) {
-  res.render('login', { title: 'My App',errorMessage:'' });
+  res.sendFile(__dirname + '/public/login.html');
 });
 
 
+const session = require('express-session');
+
+// Configure the session middleware
+app.use(session({
+  secret: 'your secret key',
+  resave: false,
+  saveUninitialized: true
+}));
+
+// Login route
 app.post('/stores/login', async (req, res) => {
   const storeName = req.body.storeName;
   const password = req.body.password;
@@ -823,13 +838,16 @@ app.post('/stores/login', async (req, res) => {
 
   // Check if the store exists and if the password is correct
   if (storeDoc.exists && storeDoc.data().password === password) {
-    // Render the main page and pass the store name as a local variable
-    res.render('billing', { title: storeName });
+    // Store the store name in a cookie
+    res.cookie('storeName', storeName);
+    // Redirect to the billing page
+    res.redirect('/billing/app');
   } else {
     // Render the login page with an error message
     res.render('login', { errorMessage: 'Invalid store name or password' });
   }
 });
+
 
 
 

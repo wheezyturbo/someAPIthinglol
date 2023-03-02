@@ -281,8 +281,16 @@
   //       var price = parseFloat($("#stock_table tbody tr.selected td:nth-child(3)").text());
   //       var quantity = parseInt($("#stock_table tbody tr.selected select[name='quantity']").val());
   //   }
-  var storeName = 'store1';
+
+
+
+  // var storeName = 'store1';
+  // document.getElementById('title').innerText = `${storeName}`;
+
+  let storeName = document.cookie.replace(/(?:(?:^|.*;\s*)storeName\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+  storeName = decodeURI(storeName).replace("%20","");
   document.getElementById('title').innerText = `${storeName}`;
+  
 
   $(document).ready(function () {
     // Retrieve the available stock of items from the server
