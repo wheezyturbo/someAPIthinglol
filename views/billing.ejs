@@ -3,7 +3,7 @@
 
 <head>
 
-  <title>Billing Page</title>
+  <title><%= title %></title>
   <!-- <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet" /> -->
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
@@ -281,7 +281,7 @@
   //       var price = parseFloat($("#stock_table tbody tr.selected td:nth-child(3)").text());
   //       var quantity = parseInt($("#stock_table tbody tr.selected select[name='quantity']").val());
   //   }
-  var storeName = 'store1';
+  var storeName = document.title;
   document.getElementById('title').innerText = `${storeName}`;
 
   $(document).ready(function () {

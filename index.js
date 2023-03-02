@@ -8,7 +8,7 @@ const pdfkit = require('pdfkit')
 const easyinvoice = require('easyinvoice');
 const fs = require('fs')
 const path = require('path')
-
+app.set('view engine', 'ejs');
 
 // Initialize Firebase
 const config = {
@@ -23,6 +23,7 @@ const config = {
 
 app.use(cors());
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 firebase.initializeApp(config);
 
@@ -805,10 +806,29 @@ function generateInvoiceNumber() {
 
 
 
+app.get('/stores/login', function(req, res) {
+  res.render('login', { title: 'My App',errorMessage:'' });
+});
 
 
+app.post('/stores/login', async (req, res) => {
+  const storeName = req.body.storeName;
+  const password = req.body.password;
+  console.log("storeName =", storeName)
+  // Retrieve the store from Firestore based on the store name
+  const storeRef = firebase.firestore().collection('stores').doc(storeName);
+  const storeDoc = await storeRef.get();
+  console.log(storeDoc.data)
 
-
+  // Check if the store exists and if the password is correct
+  if (storeDoc.exists && storeDoc.data().password === password) {
+    // Render the main page and pass the store name as a local variable
+    res.render('billing', { title: storeName });
+  } else {
+    // Render the login page with an error message
+    res.render('login', { errorMessage: 'Invalid store name or password' });
+  }
+});
 
 
 
