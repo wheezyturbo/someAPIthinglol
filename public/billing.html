@@ -1,267 +1,495 @@
-<link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet" />
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Billing App</title>
+
+  <title>Billing Page</title>
+  <!-- <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet" /> -->
   <style>
-    body{
-      background:black;
-      color:white;
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
+
+
+
+
+    // Learn about this solution to creating custom select styles:
+    // @link https://moderncss.dev/custom-select-styles-with-pure-css/
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --select-border: #777;
+      --select-focus: blue;
+      --select-arrow: var(--select-border);
+    }
+
+    select {
+      // A reset of styles, including removing the default dropdown arrow
+      appearance: none;
+      background-color: transparent;
+      color: coral;
+      border: none;
+      padding: 0 1em 0 0;
+      margin: 0;
+      width: 100%;
+      font-family: inherit;
+      font-size: inherit;
+      cursor: inherit;
+      line-height: inherit;
+
+      // Stack above custom arrow
+      z-index: 1;
+
+      // Remove dropdown arrow in IE10 & IE11
+      // @link https://www.filamentgroup.com/lab/select-css.html
+      &::-ms-expand {
+        display: none;
+      }
+
+      // Remove focus outline, will add on alternate element
+      outline: none;
+    }
+
+    .select {
+      display: grid;
+      grid-template-areas: "select";
+      align-items: center;
+      position: relative;
+
+      select,
+      &::after {
+        grid-area: select;
+      }
+
+      min-width: 15ch;
+      max-width: 30ch;
+
+      border: 1px solid var(--select-border);
+      border-radius: 0.25em;
+      padding: 0.25em 0.5em;
+
+      font-size: 1.25rem;
+      cursor: pointer;
+      line-height: 1.1;
+
+      // Optional styles
+      // remove for transparency
+      background-color: #fff;
+      background-image: linear-gradient(to top, #f9f9f9, #fff 33%);
+
+      // Custom arrow
+      &:not(.select--multiple)::after {
+        content: "";
+        justify-self: end;
+        width: 0.8em;
+        height: 0.5em;
+        background-color: var(--select-arrow);
+        clip-path: polygon(100% 0%, 0 0%, 50% 100%);
+      }
+    }
+
+    // Interim solution until :focus-within has better support
+    select:focus+.focus {
+      position: absolute;
+      top: -1px;
+      left: -1px;
+      right: -1px;
+      bottom: -1px;
+      border: 2px solid var(--select-focus);
+      border-radius: inherit;
+    }
+
+    select[multiple] {
+      padding-right: 0;
+
+      /*
+   * Safari will not reveal an option
+   * unless the select height has room to 
+   * show all of it
+   * Firefox and Chrome allow showing 
+   * a partial option
+   */
+      height: 6rem;
+
+      option {
+        white-space: normal;
+
+        // Only affects Chrome
+        outline-color: var(--select-focus);
+      }
+
+      /* 
+   * Experimental - styling of selected options
+   * in the multiselect
+   * Not supported crossbrowser
+   */
+      //   &:not(:disabled) option {
+      //     border-radius: 12px;
+      //     transition: 120ms all ease-in;
+
+      //     &:checked {
+      //       background: linear-gradient(hsl(242, 61%, 76%), hsl(242, 61%, 71%));
+      //       padding-left: 0.5em;
+      //       color: black !important;
+      //     }
+      //   }
+    }
+
+    .select--disabled {
+      cursor: not-allowed;
+      background-color: #eee;
+      background-image: linear-gradient(to top, #ddd, #eee 33%);
+    }
+
+    label {
+      font-size: 1.125rem;
+      font-weight: 500;
+    }
+
+    .select+label {
+      margin-top: 2rem;
+    }
+
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-content: center;
+      grid-gap: 0.5rem;
+      font-family: "Baloo 2", sans-serif;
+      background-color: #e9f2fd;
+      padding: 1rem;
+    }
+
+
+
+
+    body {
+      font-family: poppins;
+      background: black;
+      color: white;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 8px;
+    }
+
+    th {
+      background-color: #3e0382;
+      color: white;
+    }
+
+    /* tr:nth-child(even) {
+      background-color: #4f2559;
+    } */
+
+    tr {
+      background-color: #3e0382;
+      border-top: 1px solid black;
+    }
+
+    .button {
+      background-color: #3e0382;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
     }
   </style>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
 </head>
 
 <body>
-  <div id="login-page">
-    <h1>Login</h1>
-    <form id="login-form">
-      <label for="store-name-input">Store name:</label>
-      <input type="text" id="store-name-input" required>
-      <label for="store-possword">Password</label>
-      <input type="text" name="" id="store-password">
-      <button type="submit">Login</button>
-    </form>
-  </div>
-  <div id="bill-page" style="display: none;">
-    <h1>Billing</h1>
-    <form id="bill-form">
-      <label for="items-select">Item:</label>
-      <select id="items-select" required>
-        <option value="">--Select item--</option>
-      </select>
-      <label for="stock-select">Quantity:</label>
-      <select id="stock-select" required>
-        <option value="">--Select quantity--</option>
-      </select>
-      <label for="price-input">Price per unit:</label>
-      <input type="number" id="price-input" step="0.01" required>
-      <button id="add-item-button">Add Item</button>
-      <table id="bill-table">
-        <thead>
-          <tr>
-            <th>Item</th>
-            <th>Quantity</th>
-            <th>Price Per Unit</th>
-            <th>Total Price</th>
-          </tr>
-        </thead>
-        <tbody>
-        </tbody>
-      </table>
+  <h1 id="title">Billing Page</h1>
+  <h2>Available Stock</h2>
+  <table id="stock_table">
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th>Stock</th>
+        <th>Price</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Table rows for available stock of items will be added dynamically using jQuery -->
+    </tbody>
+  </table>
+  <h2>Cart</h2>
+  <table id="cart_table">
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Total Cost</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Table rows for items added to cart will be added dynamically using jQuery -->
+    </tbody>
+  </table>
+  <!-- <h3>Add Item</h3>
+  <label for="name_input">Item Name:</label>
+  <input type="text" id="name_input"><br><br>
+  <label for="price_input">Item Price:</label>
+  <input type="text" id="price_input"><br><br>
+  <label for="quantity_input">Quantity:</label>
+  <input type="text" id="quantity_input"><br><br>
+  <button id="add_button" class="button">Add Item</button> -->
+  <h3>Actions</h3>
+  <button id="generate_button" class="button">Generate Invoice</button>
+  <button id="update_button" class="button">Update Stock</button>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-      <button type="submit">Bill</button>
-    </form>
-    <button id="print-button">Print</button>
-  </div>
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+
 </body>
 <script>
-  // Login page
-  const loginForm = document.getElementById('login-form');
-  loginForm.addEventListener('submit', (event) => {
-    event.preventDefault();
+  //   function selectRow(rowId) {
+  //     console.log(`row-${rowId}`);
 
-    const storeName = document.getElementById('store-name-input').value;
+  //     let row = document.getElementById(`row-${rowId}`);
 
-    fetch(`/store/${storeName}`)
-      .then(response => response.json())
-      .then(storeData => {
-        const itemsSelect = document.getElementById('items-select');
-        storeData.items.forEach(item => {
-          const option = document.createElement('option');
-          option.value = item.name;
-          option.text = item.name;
-          itemsSelect.add(option);
-        });
+  // let cell = row.getElementsByTagName('td');
+  // console.log(cell[0].innerText);
+  // console.log(cell[2].innerText);
 
-        const stockSelect = document.getElementById('stock-select');
-        itemsSelect.addEventListener('change', () => {
-          const itemName = itemsSelect.value;
-          const item = storeData.items.find(item => item.name === itemName);
-          stockSelect.innerHTML = "";
-          console.log(stockSelect.innerHTML, "ok")
-          for (let i = 0; i <= item.stock; i++) {
-            const option = document.createElement('option');
-            option.value = i.toString();
-            option.text = i.toString();
-            stockSelect.add(option);
+  // let name = cell[0].innerText;
+  // let price = cell[0].getElementsByTagName('select')[0].value;
+  // let quantity = cell[2].innerText;
+
+  // let a = cell[0].select[0].value
+
+
+
+
+  //       var row = document.getElementById(`row-${rowId}`);
+  //       var cells = row.getElementsByTagName("td");
+  //       console.log(cells[0].value);
+  //       var name = $("row-"+rowId);
+  //       console.log(name);
+  //       var price = parseFloat($("#stock_table tbody tr.selected td:nth-child(3)").text());
+  //       var quantity = parseInt($("#stock_table tbody tr.selected select[name='quantity']").val());
+  //   }
+  var storeName = 'store1';
+  document.getElementById('title').innerText = `${storeName}`;
+
+  $(document).ready(function () {
+    // Retrieve the available stock of items from the server
+    $.ajax({
+      url: `/store/${storeName}`,
+      success: function (data) {
+        console.log(data);
+        // Display the available stock of items in a table
+        $("#stock_table tbody").empty();
+        $.each(data.items, function (i, item) {
+          var row = "<tr><td>" + item.name + "</td><td><select name='quantity'>";
+          for (var i = 0; i <= item.stock; i++) {
+            row += "<option value='" + i + "'>" + i + "</option>";
           }
+          row += "</select></td><td>" + item.price + "</td><td>" + "<button class='add-stock-button'>add</button>";
+          $("#stock_table tbody").append(row);
         });
-        const billForm = document.getElementById('bill-form');
-        billForm.addEventListener('submit', (event) => {
-          event.preventDefault();
-          billItem(storeName, itemsSelect.value, parseInt(stockSelect.value), parseFloat(document.getElementById('price-input').value))
-            .then(data => {
-              console.log(data);
-              alert(`Item billed successfully. Total price: ${data.totalPrice}`);
-              stockSelect.innerHTML = '';
-              itemsSelect.selectedIndex = 0;
-              document.getElementById('price-input').value = '';
-            })
-            .catch(error => {
-              console.error(error);
-              console.log(`Error billing item: ${error}`);
-            });
+
+        // Attach a click event handler to all 'Add' buttons
+        $('.add-stock-button').on('click', function () {
+          var name = $(this).closest('tr').find('td:first-child').text();
+          var price = parseFloat($(this).closest('tr').find('td:nth-child(3)').text());
+          if (isNaN(price)) {
+            price = 0;
+          }
+          var quantity = parseInt($(this).closest('tr').find('select').val());
+
+          // Calculate the total cost of the item(s) added to the cart
+
+          var total_cost = price * quantity;
+
+          // Add a row to the cart table
+          var row = "<tr><td>" + name + "</td><td>" + price + "</td><td>" + quantity + "</td><td>" + total_cost.toFixed(2) + "</td></tr>";
+          $("#cart_table tbody").append(row);
+
+          // Clear the input fields
+          $(this).closest('tr').find('select').val('0');
         });
-        document.getElementById('login-page').style.display = 'none';
-        document.getElementById('bill-page').style.display = 'block';
-      })
-      .catch(error => {
-        console.error(error);
-        alert(`Error fetching store details: ${error}`);
-      });
+      }
+    });
+
+    // Add an item to the cart
+    $("#add_button").click(function () {
+      var name = $("#name_input").val();
+      var price = parseFloat($("#price_input").val());
+      var quantity = parseInt($("#quantity_input").val());
+
+      // Calculate the total cost of the item(s) added to the cart
+      var total_cost = price * quantity;
+
+      // Add a row to the cart table
+      var row = "<tr><td>" + name + "</td><td>" + price + "</td><td>" + quantity + "</td><td>" + total_cost.toFixed(2) + "</td></tr>";
+      $("#cart_table tbody").append(row);
+
+      // Clear the input fields
+      $("#name_input").val("");
+      $("#price_input").val("");
+      $("#quantity_input").val("");
+    });
   });
-  // Bill page
-  const printButton = document.getElementById('print-button');
-printButton.addEventListener('click', async () => {
-  const storeName = document.getElementById('store-name-input').value;
-  const rows = document.getElementById('bill-table').querySelectorAll('tbody tr');
-  const itemsArr = [];
-  for (let i = 0; i < rows.length; i++) {
-    const itemName = rows[i].querySelectorAll('td')[0].textContent;
-    const quantity = parseInt(rows[i].querySelectorAll('td')[1].textContent);
-    const pricePerUnit = parseFloat(rows[i].querySelectorAll('td')[2].textContent.slice(1));
-    const itemsobj = {};
-    itemsobj.itemName = itemName;
-    itemsobj.quantity = quantity;
-    itemsobj.pricePerUnit = pricePerUnit;
-    itemsArr.push(itemsobj);
-    await billItem(storeName, itemName, quantity, pricePerUnit);
-  }
-  printBill(storeName, itemsArr);
-  alert('All items billed successfully.');
+
+  // Generate a PDF invoice
+
+    $("#generate_button").click(function () {
+  let store_ = document.getElementById('title').innerText;
+  const items = getCartItems();
+
+  fetch('/billing/invoice', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      store: store_,
+      items: items
+    })
+  })
+  .then(response => response.blob())
+  .then(blob => {
+    // Download the PDF invoice
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'invoice.pdf';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  })
+  .catch(error => console.error(error));
 });
 
-
-  function billItem(storeName, itemName, quantity, pricePerUnit) {
-    return fetch('/bill-item', {
-      method: 'POST',
-      body: JSON.stringify({
-        store: storeName,
-        itemName: itemName,
-        quantity: quantity,
-        pricePerUnit: pricePerUnit,
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then(response => response.json()).then(data => {
-      console.log(data);
-      const totalPrice = pricePerUnit * quantity;
-      const row = document.createElement('tr');
-      row.innerHTML = `<td>${itemName}</td><td>${quantity}</td><td>$${pricePerUnit.toFixed(2)}</td><td>$${totalPrice.toFixed(2)}</td>`;
-      document.getElementById('bill-table').querySelector('tbody').appendChild(row);
-      return data.totalPrice;
-    })
-  }
-
-  function printBill(storeName, items) {
-  const doc = new jsPDF();
-
-  // Set the font and font size
-  doc.setFont("Helvetica", "bold");
-  doc.setFontSize(20);
-
-  // Add the title
-  doc.text("BILL", 105, 20, { align: "center" });
-
-  // Set the font and font size
-  doc.setFont("Helvetica", "normal");
-  doc.setFontSize(14);
-
-  // Add the store name
-  doc.text(`Store: ${storeName}`, 20, 40);
-
-  let startY = 50;
-
-  // Loop through the items
-  items.forEach((item, index) => {
-    // Add the item name
-    doc.text(`Item ${index + 1}: ${item.itemName}`, 20, startY);
-
-    // Add the quantity
-    doc.text(`Quantity: ${item.quantity}`, 20, startY + 10);
-
-    // Add the price per unit
-    doc.text(`Price per unit: $${item.pricePerUnit.toFixed(2)}`, 20, startY + 20);
-
-    // Add the total price
-    doc.text(`Total price: $${(item.quantity * item.pricePerUnit).toFixed(2)}`, 20, startY + 30);
-
-    startY += 50;
+function getCartItems() {
+  var items = [];
+  $('#cart_table tbody tr').each(function() {
+    var item = {
+      name: $(this).find('td:eq(0)').text(),
+      price: parseFloat($(this).find('td:eq(1)').text()),
+      quantity: parseInt($(this).find('td:eq(2)').text())
+    };
+    item.total_cost = item.price * item.quantity;
+    items.push(item);
   });
-
-  // Add the date and time
-  const date = new Date();
-  const dateTimeString = date.toLocaleString();
-  doc.text(`Date and Time: ${dateTimeString}`, 20, startY + 20);
-
-  // Save the PDF document
-  doc.save('bill.pdf');
+  return items;
 }
 
 
-  const addItemButton = document.getElementById('add-item-button');
-addItemButton.addEventListener('click', () => {
-  const storeName = document.getElementById('store-name-input').value;
-  const itemName = document.getElementById('items-select').value;
-  const quantity = parseInt(document.getElementById('stock-select').value);
-  const pricePerUnit = parseFloat(document.getElementById('price-input').value);
-  billItem(storeName, itemName, quantity, pricePerUnit)
-    .then(totalPrice => {
-      document.getElementById('price-input').value = '';
-      document.getElementById('stock-select').innerHTML = '';
-      const row = document.createElement('tr');
-      row.innerHTML = `<td>${itemName}</td><td>${quantity}</td><td>$${pricePerUnit.toFixed(2)}</td><td>$${totalPrice.toFixed(2)}</td>`;
-      document.getElementById('bill-table').querySelector('tbody').appendChild(row);
+
+
+function invoicer(items) {
+  let store_ = document.getElementById('title').innerText;
+  
+
+  fetch('/billing/invoice', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      store: store_,
+      items: items
     })
-    .catch(error => {
-      console.error(error);
-      console.log(`Error billing item: ${error}`);
+  })
+  .then(response => response.blob())
+  .then(blob => {
+    // Download the PDF invoice
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'invoice.pdf';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  })
+  .catch(error => console.error(error));
+}
+
+
+
+
+  // Update the stock of items on the server
+  console.log($("#update_button"));
+  $("#update_button").click(function () {
+    // Define an array to hold the updated stock values
+    const items = getCartItems();
+    var updated_stock = [];
+
+    // Get the store name from the input element
+    var storeName = $("#store-name-input").val();
+
+    // Loop through the rows in the stock table
+    $("#stock_table tbody tr").each(async function () {
+      var name = $(this).find("td:eq(0)").text();
+      var stock = parseInt($(this).find("td:eq(1)").text());
+      var price = parseInt($(this).find("td:eq(2)").text());
+
+      // Loop through the rows in the cart table to calculate the total quantity of each item
+      var total_quantity = 0;
+      $("#cart_table tbody tr").each(function () {
+        if ($(this).find("td:eq(0)").text() == name) {
+          total_quantity += parseInt($(this).find("td:eq(2)").text());
+        }
+      });
+
+      // Calculate the updated stock value
+      var new_stock = stock - total_quantity;
+      // Add the updated stock value to the array
+      updated_stock.push({
+        name: name,
+        stock: new_stock
+      });
+      let store_ = document.getElementById('title').innerText;
+      // Send the updated stock value to the server
+      $.ajax({
+        url: "/billing/bill-item",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({
+          store: store_,
+          itemName: name,
+          quantity: total_quantity,
+          pricePerUnit: price
+        }),
+        success: async function (items) {
+          console.log("Stock updated successfully.");
+
+        },
+        error: function () {
+          console.log("Error updating stock.");
+        }
+      });
+
     });
-});
+    invoicer(items);
+
+    // Update the stock values in the stock table
 
 
+    // Clear the cart table
+    $("#cart_table tbody").empty();
+
+    // Show a success message
+    
+  });
 
 
 </script>
 
 </html>
-
-
-
-https://www.youtube.com/watch?v=wJxzeurNNlA
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
