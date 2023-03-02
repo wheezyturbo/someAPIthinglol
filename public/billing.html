@@ -205,11 +205,29 @@
       border-radius: 4px;
       cursor: pointer;
     }
+    button {
+  background-color: purple;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background-color: #8a2be2; /* darker purple */
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
   </style>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
 </head>
 
 <body>
+  <form action="/stores/logout" method="POST">
+    <button type="submit">Logout</button>
+  </form>
+  
   <h1 id="title">Billing Page</h1>
   <h2>Available Stock</h2>
   <table id="stock_table">
