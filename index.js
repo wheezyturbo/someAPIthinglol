@@ -34,7 +34,7 @@ const authcontroller = require('./controllers/AuthController');
 
 
 app.get('/:item', itemsController.itemInQueryString);
-app.get('/api/:item', itemsController.haversineQueryStringForApp);
+app.get('/api/fetch-item/:item', itemsController.haversineQueryStringForApp);
 
 
 app.post('/add', storesController.addItemsToStore);
