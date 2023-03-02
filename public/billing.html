@@ -225,7 +225,7 @@
       <!-- Table rows for available stock of items will be added dynamically using jQuery -->
     </tbody>
   </table>
-  <h2>Cart</h2>
+  <h2>Cart   <button id = "clear_cart">clear</button></h2>
   <table id="cart_table">
     <thead>
       <tr>
@@ -248,8 +248,8 @@
   <input type="text" id="quantity_input"><br><br>
   <button id="add_button" class="button">Add Item</button> -->
   <h3>Actions</h3>
-  <button id="generate_button" class="button">Generate Invoice</button>
-  <button id="update_button" class="button">Update Stock</button>
+  <!-- <button id="generate_button" class="button">Generate Invoice</button> -->
+  <button id="update_button" class="button">update DB and Bill</button>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 
@@ -323,7 +323,9 @@
         });
       }
     });
-
+    $("#clear_cart").click(function(){
+      $("#cart_table tbody").empty()
+    })
     // Add an item to the cart
     $("#add_button").click(function () {
       var name = $("#name_input").val();
@@ -346,34 +348,34 @@
 
   // Generate a PDF invoice
 
-    $("#generate_button").click(function () {
-  let store_ = document.getElementById('title').innerText;
-  const items = getCartItems();
+//     $("#generate_button").click(function () {
+//   let store_ = document.getElementById('title').innerText;
+//   const items = getCartItems();
 
-  fetch('/billing/invoice', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      store: store_,
-      items: items
-    })
-  })
-  .then(response => response.blob())
-  .then(blob => {
-    // Download the PDF invoice
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'invoice.pdf';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-  })
-  .catch(error => console.error(error));
-});
+//   fetch('/billing/invoice', {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json'
+//     },
+//     body: JSON.stringify({
+//       store: store_,
+//       items: items
+//     })
+//   })
+//   .then(response => response.blob())
+//   .then(blob => {
+//     // Download the PDF invoice
+//     const url = window.URL.createObjectURL(blob);
+//     const a = document.createElement('a');
+//     a.href = url;
+//     a.download = 'invoice.pdf';
+//     document.body.appendChild(a);
+//     a.click();
+//     document.body.removeChild(a);
+//     window.URL.revokeObjectURL(url);
+//   })
+//   .catch(error => console.error(error));
+// });
 
 function getCartItems() {
   var items = [];
@@ -484,11 +486,31 @@ function invoicer(items) {
 
     // Clear the cart table
     $("#cart_table tbody").empty();
-
+    setLoaded();
     // Show a success message
     
   });
 
+
+
+  function setLoaded() {
+    // Retrieve the available stock of items from the server
+    $.ajax({
+      url: `/store/${storeName}`,
+      success: function (data) {
+        console.log(data);
+        // Display the available stock of items in a table
+        $("#stock_table tbody").empty();
+        $.each(data.items, function (i, item) {
+          var row = "<tr><td>" + item.name + "</td><td><select name='quantity'>";
+          for (var i = 0; i <= item.stock; i++) {
+            row += "<option value='" + i + "'>" + i + "</option>";
+          }
+          row += "</select></td><td>" + item.price + "</td><td>" + "<button class='add-stock-button'>add</button>";
+          $("#stock_table tbody").append(row);
+        });
+      }})
+    }
 
 </script>
 
