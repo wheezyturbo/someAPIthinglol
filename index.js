@@ -35,6 +35,7 @@ const authcontroller = require('./controllers/AuthController');
 
 app.get('/:item', itemsController.itemInQueryString);
 app.get('/api/fetch-item/:item', itemsController.haversineQueryStringForApp);
+app.get('/api/autocomplete/:item',itemsController.suggestions);
 
 
 
