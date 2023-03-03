@@ -4,16 +4,8 @@ const firebase = require('firebase')
 const express = require('express');
 const app = express();
 const cors = require("cors");
-const allowedOrigins = ['https://wheezyturbo.github.io/'];
-app.use(cors({
-  origin: function (origin, callback) {
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  }
-}));
+
+app.use(cors());
 
 
 exports.addItemsToStore = (req, res) => {
