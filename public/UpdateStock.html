@@ -4,8 +4,48 @@
 <head>
   <title>Update Stock</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
-</head>
+<style>
+    .navbar {
+  background-color: #000000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
 
+.navbar ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.navbar li {
+  float: left;
+}
+
+.navbar li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+.navbar li a:hover {
+  background-color: #600c6b;
+  color:white;
+}
+
+</style>
+</head>
+<nav class="navbar">
+    <ul>
+      <li><a href="/stores/additems"">Add Items</a></li>
+      <li><a href="/stores/update-stock" style = "color:aqua;">Update Stock</a></li>
+      <li><a href="/stores/add-store">Add Store</a></li>
+    </ul>
+  </nav>
 <body class="bg-black text-white flex justify-center items-center h-screen">
   <div class="bg-gray-800 px-6 py-8 rounded-md">
     <h1 class="text-3xl font-bold mb-8 text-center">Update Stock</h1>
