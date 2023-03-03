@@ -37,6 +37,11 @@ app.get('/:item', itemsController.itemInQueryString);
 app.get('/api/fetch-item/:item', itemsController.haversineQueryStringForApp);
 
 
+
+app.get('/stores/additems',storesController.addItemsToStoreGet);
+app.get('/stores/update-stock',storesController.updateStockStoreGet);
+app.get('/stores/add-store',storesController.addNewStoreGet);
+
 app.post('/add', storesController.addItemsToStore);
 app.patch('/update-stock', storesController.updateStockStore);
 app.post('/add-store', storesController.addNewStore);

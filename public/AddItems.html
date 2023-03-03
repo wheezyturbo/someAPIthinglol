@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Add Store</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+</head>
+
+<body class="bg-black text-white flex justify-center items-center h-screen">
+  <div class="bg-gray-800 px-6 py-8 rounded-md">
+    <h1 class="text-3xl font-bold mb-8 text-center">Add Store</h1>
+    <div class="flex flex-col">
+      <label for="store" class="mb-2">Store:</label>
+      <input type="text" id="store" class="mb-4 px-4 py-2 rounded-md bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-600" />
+      <label for="item" class="mb-2">Item:</label>
+      <input type="text" id="item" class="mb-4 px-4 py-2 rounded-md bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-600" />
+      <label for="stock" class="mb-2">Stock:</label>
+      <input type="number" id="stock" class="mb-4 px-4 py-2 rounded-md bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-600" />
+      <label for="price" class="mb-2">Price:</label>
+      <input type="number" id="price" class="mb-6 px-4 py-2 rounded-md bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-600" />
+      <button id="submit"
+        class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-600">
+        Add Item
+      </button>
+      <div id="response" class="mt-4 text-center"></div>
+    </div>
+  </div>
+  <script>
+    const submitButton = document.getElementById('submit');
+    const responseDiv = document.getElementById('response');
+
+    submitButton.addEventListener('click', () => {
+      const store = document.getElementById('store').value;
+      const item = document.getElementById('item').value;
+      const stock = document.getElementById('stock').value;
+      const price = document.getElementById('price').value;
+
+      fetch('/add', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            store,
+            item,
+            stock,
+            price
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.message === 'Item added successfully') {
+            responseDiv.innerText = `${data.message}: ${item} has been added to ${store}`;
+            document.getElementById('store').value = '';
+            document.getElementById('item').value = '';
+            document.getElementById('stock').value = '';
+                    document.getElementById('price').value = '';
+                } else {
+                    responseDiv.innerText = `Error: ${data.error}`;
+                }
+            })
+            .catch(error => {
+                responseDiv.innerText = `Error: ${error.message}`;
+            });
+        });
+    </script>
+</body>
+
+</html>
