@@ -145,8 +145,8 @@ exports.suggestions = async (req, res) => {
     const snapshot = await firestore.collectionGroup('items').get();
     const items = snapshot.docs.map(doc => doc.data());
     const matchingItems = items.filter(item => item.name && item.name.toLowerCase().includes(query));
-    console.log(matchingItems)
-    const matchingItemNames = matchingItems.map(item => item.name);
+    console.log(matchingItems);
+    const matchingItemNames = [...new Set(matchingItems.map(item => item.name))]; // Use Set to remove duplicates
     res.json(matchingItemNames);
   } catch (error) {
     console.error(error);
