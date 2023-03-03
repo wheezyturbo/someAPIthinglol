@@ -1,7 +1,9 @@
 
 const firebaseConfig = require('../firebaseConfig');
 const firebase = require('firebase')
+require('firebase/firestore');
 firebase.initializeApp(firebaseConfig);
+const firestore = firebase.firestore();
 const haversine = require('haversine');
 
 
@@ -132,3 +134,25 @@ exports.itemInQueryString = async (req, res) => {
     };
 
     
+
+// define your route for fetching item suggestions
+
+exports.suggestions = async (req, res) => {
+  try {
+    const query = req.params.item.toLowerCase();
+    console.log(req);
+    console.log(query);
+    const snapshot = await firestore.collectionGroup('items').get();
+    const items = snapshot.docs.map(doc => doc.data());
+    const matchingItems = items.filter(item => item.name && item.name.toLowerCase().includes(query));
+    console.log(matchingItems)
+    const matchingItemNames = matchingItems.map(item => item.name);
+    res.json(matchingItemNames);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+};
+
+
+
