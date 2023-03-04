@@ -91,8 +91,9 @@ exports.updateStockStore=(req, res) => {
 
   exports.addNewStore = (req, res) => {
     const storeName = req.body.store;
-    const lat = req.body.lat;
-    const long = req.body.long;
+    const lat = parseFloat(req.body.lat);
+    const long = parseFloat(req.body.long);
+    console.log(lat,typeof lat,long,typeof long);
     const password = req.body.password;
     firebase.firestore().collection('stores').doc(storeName).get()
       .then(doc => {
