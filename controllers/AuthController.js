@@ -15,8 +15,8 @@ exports.loginGet  = (req, res)=> {
     // Retrieve the store from Firestore based on the store name
     const storeRef = firebase.firestore().collection('stores').doc(storeName);
     const storeDoc = await storeRef.get();
-    console.log(storeDoc.data)
-  
+    console.log(storeDoc.exists);
+    
     // Check if the store exists and if the password is correct
     if (storeDoc.exists && storeDoc.data().password === password) {
       // Store the store name in a cookie
