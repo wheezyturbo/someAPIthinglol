@@ -36,6 +36,12 @@
   background-color: #600c6b;
   color:white;
 }
+#storeName {
+  color:rgb(173, 91, 255);
+}
+a{
+  cursor:pointer;
+}
 </style>
 </head>
 
@@ -44,15 +50,17 @@
       <li><a href="/stores/additems" style = "color:aqua;">Add Items</a></li>
       <li><a href="/stores/update-stock">Update Stock</a></li>
       <li><a href="/stores/add-store">Add Store</a></li>
+      <li><a href="/billing/app">Billing</a></li>
+      <li><a onclick = "logout()">logout</a></li>
     </ul>
   </nav>
   
 <body class="bg-black text-white flex justify-center items-center h-screen">
   <div class="bg-gray-800 px-6 py-8 rounded-md">
-    <h1 class="text-3xl font-bold mb-8 text-center">Add Items</h1>
+    <h1 class="text-3xl font-bold mb-8 text-center">Add Items to: <span id = "storeName"></span></h1>
     <div class="flex flex-col">
-      <label for="store" class="mb-2">Store:</label>
-      <input type="text" id="store" class="mb-4 px-4 py-2 rounded-md bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-600" />
+      <!-- <label for="store" class="mb-2">Store:</label>
+      <input type="text" id="store" class="mb-4 px-4 py-2 rounded-md bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-600" /> -->
       <label for="item" class="mb-2">Item:</label>
       <input type="text" id="item" class="mb-4 px-4 py-2 rounded-md bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-600" />
       <label for="stock" class="mb-2">Stock:</label>
@@ -70,9 +78,14 @@
   <script>
     const submitButton = document.getElementById('submit');
     const responseDiv = document.getElementById('response');
+    var store = document.cookie.replace(/(?:(?:^|.*;\s*)storeName\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+    store = decodeURI(store).replace("%20","");
+    console.log(store);
+    storeName.innerText = store;
+    
 
-    submitButton.addEventListener('click', () => {
-      const store = document.getElementById('store').value;
+      submitButton.addEventListener('click', () => {
+      // const store = document.getElementById('store').value;
       const item = document.getElementById('item').value;
       const stock = document.getElementById('stock').value;
       const price = document.getElementById('price').value;
@@ -93,7 +106,7 @@
         .then(data => {
           if (data.message === 'Item added successfully') {
             responseDiv.innerText = `${data.message}: ${item} has been added to ${store}`;
-            document.getElementById('store').value = '';
+            // document.getElementById('store').value = '';
             document.getElementById('item').value = '';
             document.getElementById('stock').value = '';
                     document.getElementById('price').value = '';
@@ -105,6 +118,15 @@
                 responseDiv.innerText = `Error: ${error.message}`;
             });
         });
+        function logout(){
+          fetch('/stores/logout', {
+          method: 'POST',
+        }).then(
+          ()=>{
+            window.location.href="/stores/login";
+          }
+        )
+        }
     </script>
 </body>
 

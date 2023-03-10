@@ -206,7 +206,7 @@
       cursor: pointer;
     }
     button {
-  background-color: purple;
+  background-color: black;
   color: #fff;
   border: none;
   padding: 10px 20px;
@@ -219,16 +219,64 @@ button:hover {
   background-color: #8a2be2; /* darker purple */
   box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
 }
+.links{
+  display:flex;
+  
+  justify-content: space-evenly;
+}
+.container{
+  min-width:60vw;
+}
+a{
+  text-decoration: none;
+  background-color: black;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+a:hover{
+  color:aqua;
+  transition: 0.3s ease-out;
+}
+@media screen and (max-width: 480px) {
+  body {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+  }
+  #title {
+    margin-top: 0;
+  }
+}
+select option {
+  background-color: #6B7280; /* Set the background color */
+  color: #F3F4F6; /* Set the text color */
+}
+
+select::-ms-expand {
+  color: #F3F4F6; /* Set the arrow color for IE/Edge */
+}
+
   </style>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
 </head>
 
 <body>
+  <div class="links">
+    <a href = "/stores/additems">update stock</a>
+    <a href = "/stores/update-stock">update stock</a>
   <form action="/stores/logout" method="POST">
     <button type="submit">Logout</button>
   </form>
-  
+</div>
+
+
   <h1 id="title">Billing Page</h1>
+  <div class = "container">
   <h2>Available Stock</h2>
   <table id="stock_table">
     <thead>
@@ -268,6 +316,8 @@ button:hover {
   <h3>Actions</h3>
   <!-- <button id="generate_button" class="button">Generate Invoice</button> -->
   <button id="update_button" class="button">update DB and Bill</button>
+
+</div>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 
@@ -415,6 +465,8 @@ function invoicer(items) {
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
+  }).then(()=>{
+    window.location.reload();
   })
   .catch(error => console.error(error));
 }

@@ -36,6 +36,18 @@
   background-color: #600c6b;
   color:white;
 }
+#storeName{
+  color:rgb(156, 49, 255);
+}
+#response {
+  overflow-wrap: break-word;
+}
+.max-w{
+  max-width: 410px;
+}
+a{
+  cursor:pointer;
+}
 
 </style>
 </head>
@@ -44,16 +56,19 @@
       <li><a href="/stores/additems"">Add Items</a></li>
       <li><a href="/stores/update-stock" style = "color:aqua;">Update Stock</a></li>
       <li><a href="/stores/add-store">Add Store</a></li>
+      <li><a href="/billing/app">Billing</a></li>
+      <li><a onclick = "logout()">logout</a></li>
     </ul>
   </nav>
 <body class="bg-black text-white flex justify-center items-center h-screen">
-  <div class="bg-gray-800 px-6 py-8 rounded-md">
-    <h1 class="text-3xl font-bold mb-8 text-center">Update Stock</h1>
+  <div class="bg-gray-800 px-6 py-8 rounded-md max-w">
+    <h1 class="text-3xl font-bold mb-8 text-center">Update Stock for: <span id ="storeName"></span></h1>
     <div class="flex flex-col">
-      <label for="store" class="mb-2">Store:</label>
-      <input type="text" id="store" class="mb-4 px-4 py-2 rounded-md bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-600" />
+      <!-- <label for="store" class="mb-2">Store:</label>
+      <input type="text" id="store" class="mb-4 px-4 py-2 rounded-md bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-600" /> -->
       <label for="item" class="mb-2">Item:</label>
-      <input type="text" id="item" class="mb-4 px-4 py-2 rounded-md bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-600" />
+      <select id="item" class="mb-4 px-4 py-2 rounded-md bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-600"></select>
+      
       <label for="stock" class="mb-2">New Stock:</label>
       <input type="number" id="stock" class="mb-6 px-4 py-2 rounded-md bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-600" />
       <button id="submit"
@@ -64,40 +79,69 @@
     </div>
   </div>
   <script>
-    const submitButton = document.getElementById('submit');
-    const responseDiv = document.getElementById('response');
+const storeName = decodeURI(document.cookie.replace(/(?:(?:^|.*;\s*)storeName\s*\=\s*([^;]*).*$)|^.*$/, "$1")).replace("%20","");
+document.getElementById('storeName').innerText = storeName;
 
-    submitButton.addEventListener('click', () => {
-      const store = document.getElementById('store').value;
-      const item = document.getElementById('item').value;
-      const stock = document.getElementById('stock').value;
+const submitButton = document.getElementById('submit');
+const responseDiv = document.getElementById('response');
+const itemSelect = document.getElementById('item');
 
-      fetch('/update-stock', {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            store,
-            item,
-            stock
-          })
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.message === 'Item stock updated successfully') {
-            responseDiv.innerText = `${data.message}: ${item}'s stock has been updated to ${stock} in ${store}`;
-            document.getElementById('store').value = '';
-            document.getElementById('item').value = '';
-            document.getElementById('stock').value = '';
-          } else {
-            responseDiv.innerText = `Error: ${data.error}`;
-          }
-        })
-        .catch(error => {
-          responseDiv.innerText = `Error: ${error.message}`;
-        });
+fetch(`/store/${storeName}`)
+  .then(response => response.json())
+  .then(data => {
+    // Add each item as an option to the select element
+    data.items.forEach(item => {
+      const option = document.createElement('option');
+      option.value = item.id;
+      option.textContent = item.name;
+      itemSelect.appendChild(option);
     });
+  })
+  .catch(error => {
+    console.error(error);
+    responseDiv.innerText = `Error: ${error.message}`;
+  });
+
+submitButton.addEventListener('click', () => {
+  const store = storeName;
+  const item = itemSelect.options[itemSelect.selectedIndex].text;
+  const stock = document.getElementById('stock').value;
+
+  fetch('/update-stock', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        store,
+        item,
+        stock
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.message === 'Item stock updated successfully') {
+        responseDiv.innerText = `${data.message}: ${item}'s stock has been updated to ${stock} in ${store}`;
+        document.getElementById('stock').value = '';
+      } else {
+        responseDiv.innerText = `Error: ${data.error}`;
+      }
+    })
+    .catch(error => {
+      responseDiv.innerText = `Error: ${error.message}`;
+    });
+});
+
+function logout(){
+          fetch('/stores/logout', {
+          method: 'POST',
+        }).then(
+          ()=>{
+            window.location.href="/stores/login";
+          }
+        )
+        }
+
   </script>
 </body>
 
