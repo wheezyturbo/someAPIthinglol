@@ -58,5 +58,5 @@ exports.loginGet  = (req, res)=> {
     // Clear the storeName cookie
     res.clearCookie('storeName');
     // Redirect to the login page
-    res.redirect('/stores/login');
+    res.redirect('/');
   };
