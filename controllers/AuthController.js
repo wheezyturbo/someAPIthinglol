@@ -29,6 +29,31 @@ exports.loginGet  = (req, res)=> {
     }
   }
 
+  exports.adminloginGet=(req, res)=>{  
+    const filepath = path.join(__dirname,'../public/adminlogin.html');
+    res.sendFile(filepath);    
+  }
+  exports.adminloginPost= async(req,res)=>{
+    const username = req.body.storeName;
+    const password = req.body.password;
+
+    const storeRef = firebase.firestore().collection('Users').doc(username);
+    const storeDoc = await storeRef.get();
+    console.log(storeDoc.exists);
+    console.log(storeDoc.data().password)
+    console.log(storeDoc.data().password==password)
+    if (String(storeDoc.data().password) == String(password)) {
+      const filepath = path.join(__dirname,'../public/AddStore.html');
+      res.sendFile(filepath); 
+    } else {
+      // Render the login page with an error message
+      res.redirect(__dirname+'..public/admin/login');
+    }
+  }
+
+
+
+
   exports.logout = (req, res) => {
     // Clear the storeName cookie
     res.clearCookie('storeName');

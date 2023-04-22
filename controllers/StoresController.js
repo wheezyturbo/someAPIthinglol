@@ -9,6 +9,12 @@ const path = require('path');
 app.use(cors());
 
 
+
+exports.showhome=(req,res)=>{
+  const filepath = path.join(__dirname,'../public/home.html');
+  res.sendFile(filepath);
+}
+
 exports.addItemsToStoreGet = (req,res)=>{
   const filepath = path.join(__dirname,'../public/AddItems.html');
   res.sendFile(filepath);
@@ -122,3 +128,61 @@ exports.updateStockStore=(req, res) => {
       });
   }
   
+
+
+
+  exports.removestoreGet=(req,res)=>{
+    console.log
+    res.sendFile(path.join(__dirname,'../public/removeStore.html'))
+  }
+  
+  exports.removestorePost=(req,res)=>{
+      const storeName = req.body.storeName;
+      console.log(storeName);
+      
+      firebase.firestore().collection('stores').doc(storeName).delete()
+      .then(() => {
+        return res.status(200).json({
+          message: `${storeName}  deleted successfully`
+        });
+      })
+      .catch(err => {
+        console.log(err);
+        return res.status(500).json({
+          error: err
+        });
+      });
+  }
+  
+
+
+  app.get('/stores', (req, res) => {
+    firebase.firestore().collection('stores').get()
+      .then(snapshot => {
+        const stores = [];
+        snapshot.forEach(doc => {
+          stores.push({id: doc.id, data: doc.data()});
+        });
+        res.json(stores);
+      })
+      .catch(error => {
+        console.error(error);
+        res.status(500).send('Error getting stores: ', error);
+      });
+  });
+  
+  // Route to delete a store
+  exports.getStorenames=(req, res) => {
+    firebase.firestore().collection('stores').get()
+    .then(snapshot => {
+      const stores = [];
+      snapshot.forEach(doc => {
+        stores.push({id: doc.id});
+      });
+      res.json(stores);
+    })
+    .catch(error => {
+      console.error(error);
+      res.status(500).send('Error getting stores: ', error);
+    });
+}

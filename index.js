@@ -57,6 +57,19 @@ app.get('/stores/login',authcontroller.loginGet);
 app.post('/stores/login',authcontroller.loginPost);
 app.post('/stores/logout',authcontroller.logout);
 
+
+app.get('/admin/login',authcontroller.adminloginGet);
+app.post('/admin/login',authcontroller.adminloginPost);
+app.get('/stores/remove-store',storesController.removestoreGet);
+app.post('/stores/remove-store',storesController.removestorePost);
+app.get('/stores/getstores',storesController.getStorenames);
+
+
+app.get('/',storesController.showhome)
+
+
+
+
 app.listen(3000, () => {
     console.log('Server is listening on port 3000');
 });
