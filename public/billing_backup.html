@@ -1,0 +1,267 @@
+<link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet" />
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Billing App</title>
+  <style>
+    body{
+      background:black;
+      color:white;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="login-page">
+    <h1>Login</h1>
+    <form id="login-form">
+      <label for="store-name-input">Store name:</label>
+      <input type="text" id="store-name-input" required>
+      <label for="store-possword">Password</label>
+      <input type="text" name="" id="store-password">
+      <button type="submit">Login</button>
+    </form>
+  </div>
+  <div id="bill-page" style="display: none;">
+    <h1>Billing</h1>
+    <form id="bill-form">
+      <label for="items-select">Item:</label>
+      <select id="items-select" required>
+        <option value="">--Select item--</option>
+      </select>
+      <label for="stock-select">Quantity:</label>
+      <select id="stock-select" required>
+        <option value="">--Select quantity--</option>
+      </select>
+      <label for="price-input">Price per unit:</label>
+      <input type="number" id="price-input" step="0.01" required>
+      <button id="add-item-button">Add Item</button>
+      <table id="bill-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Price Per Unit</th>
+            <th>Total Price</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+
+      <button type="submit">Bill</button>
+    </form>
+    <button id="print-button">Print</button>
+  </div>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+</body>
+<script>
+  // Login page
+  const loginForm = document.getElementById('login-form');
+  loginForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const storeName = document.getElementById('store-name-input').value;
+
+    fetch(`/store/${storeName}`)
+      .then(response => response.json())
+      .then(storeData => {
+        const itemsSelect = document.getElementById('items-select');
+        storeData.items.forEach(item => {
+          const option = document.createElement('option');
+          option.value = item.name;
+          option.text = item.name;
+          itemsSelect.add(option);
+        });
+
+        const stockSelect = document.getElementById('stock-select');
+        itemsSelect.addEventListener('change', () => {
+          const itemName = itemsSelect.value;
+          const item = storeData.items.find(item => item.name === itemName);
+          stockSelect.innerHTML = "";
+          console.log(stockSelect.innerHTML, "ok")
+          for (let i = 0; i <= item.stock; i++) {
+            const option = document.createElement('option');
+            option.value = i.toString();
+            option.text = i.toString();
+            stockSelect.add(option);
+          }
+        });
+        const billForm = document.getElementById('bill-form');
+        billForm.addEventListener('submit', (event) => {
+          event.preventDefault();
+          billItem(storeName, itemsSelect.value, parseInt(stockSelect.value), parseFloat(document.getElementById('price-input').value))
+            .then(data => {
+              console.log(data);
+              alert(`Item billed successfully. Total price: ${data.totalPrice}`);
+              stockSelect.innerHTML = '';
+              itemsSelect.selectedIndex = 0;
+              document.getElementById('price-input').value = '';
+            })
+            .catch(error => {
+              console.error(error);
+              console.log(`Error billing item: ${error}`);
+            });
+        });
+        document.getElementById('login-page').style.display = 'none';
+        document.getElementById('bill-page').style.display = 'block';
+      })
+      .catch(error => {
+        console.error(error);
+        alert(`Error fetching store details: ${error}`);
+      });
+  });
+  // Bill page
+  const printButton = document.getElementById('print-button');
+printButton.addEventListener('click', async () => {
+  const storeName = document.getElementById('store-name-input').value;
+  const rows = document.getElementById('bill-table').querySelectorAll('tbody tr');
+  const itemsArr = [];
+  for (let i = 0; i < rows.length; i++) {
+    const itemName = rows[i].querySelectorAll('td')[0].textContent;
+    const quantity = parseInt(rows[i].querySelectorAll('td')[1].textContent);
+    const pricePerUnit = parseFloat(rows[i].querySelectorAll('td')[2].textContent.slice(1));
+    const itemsobj = {};
+    itemsobj.itemName = itemName;
+    itemsobj.quantity = quantity;
+    itemsobj.pricePerUnit = pricePerUnit;
+    itemsArr.push(itemsobj);
+    await billItem(storeName, itemName, quantity, pricePerUnit);
+  }
+  printBill(storeName, itemsArr);
+  alert('All items billed successfully.');
+});
+
+
+  function billItem(storeName, itemName, quantity, pricePerUnit) {
+    return fetch('/bill-item', {
+      method: 'POST',
+      body: JSON.stringify({
+        store: storeName,
+        itemName: itemName,
+        quantity: quantity,
+        pricePerUnit: pricePerUnit,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(response => response.json()).then(data => {
+      console.log(data);
+      const totalPrice = pricePerUnit * quantity;
+      const row = document.createElement('tr');
+      row.innerHTML = `<td>${itemName}</td><td>${quantity}</td><td>$${pricePerUnit.toFixed(2)}</td><td>$${totalPrice.toFixed(2)}</td>`;
+      document.getElementById('bill-table').querySelector('tbody').appendChild(row);
+      return data.totalPrice;
+    })
+  }
+
+  function printBill(storeName, items) {
+  const doc = new jsPDF();
+
+  // Set the font and font size
+  doc.setFont("Helvetica", "bold");
+  doc.setFontSize(20);
+
+  // Add the title
+  doc.text("BILL", 105, 20, { align: "center" });
+
+  // Set the font and font size
+  doc.setFont("Helvetica", "normal");
+  doc.setFontSize(14);
+
+  // Add the store name
+  doc.text(`Store: ${storeName}`, 20, 40);
+
+  let startY = 50;
+
+  // Loop through the items
+  items.forEach((item, index) => {
+    // Add the item name
+    doc.text(`Item ${index + 1}: ${item.itemName}`, 20, startY);
+
+    // Add the quantity
+    doc.text(`Quantity: ${item.quantity}`, 20, startY + 10);
+
+    // Add the price per unit
+    doc.text(`Price per unit: $${item.pricePerUnit.toFixed(2)}`, 20, startY + 20);
+
+    // Add the total price
+    doc.text(`Total price: $${(item.quantity * item.pricePerUnit).toFixed(2)}`, 20, startY + 30);
+
+    startY += 50;
+  });
+
+  // Add the date and time
+  const date = new Date();
+  const dateTimeString = date.toLocaleString();
+  doc.text(`Date and Time: ${dateTimeString}`, 20, startY + 20);
+
+  // Save the PDF document
+  doc.save('bill.pdf');
+}
+
+
+  const addItemButton = document.getElementById('add-item-button');
+addItemButton.addEventListener('click', () => {
+  const storeName = document.getElementById('store-name-input').value;
+  const itemName = document.getElementById('items-select').value;
+  const quantity = parseInt(document.getElementById('stock-select').value);
+  const pricePerUnit = parseFloat(document.getElementById('price-input').value);
+  billItem(storeName, itemName, quantity, pricePerUnit)
+    .then(totalPrice => {
+      document.getElementById('price-input').value = '';
+      document.getElementById('stock-select').innerHTML = '';
+      const row = document.createElement('tr');
+      row.innerHTML = `<td>${itemName}</td><td>${quantity}</td><td>$${pricePerUnit.toFixed(2)}</td><td>$${totalPrice.toFixed(2)}</td>`;
+      document.getElementById('bill-table').querySelector('tbody').appendChild(row);
+    })
+    .catch(error => {
+      console.error(error);
+      console.log(`Error billing item: ${error}`);
+    });
+});
+
+
+
+
+</script>
+
+</html>
+
+
+
+https://www.youtube.com/watch?v=wJxzeurNNlA
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Add Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+    <style>
+        .navbar {
+      background-color: #000000;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+    }
+    
+    .navbar ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    
+    .navbar li {
+      float: left;
+    }
+    
+    .navbar li a {
+      display: block;
+      color: white;
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+    }
+    
+    .navbar li a:hover {
+      background-color: #600c6b;
+      color:white;
+    }
+    </style>
+
+</head>
+<nav class="navbar">
+    <ul>
+      <li><a href="/stores/additems"">Add Items</a></li>
+      <li><a href="/stores/update-stock">Update Stock</a></li>
+      <li><a href="/stores/add-store"  style = "color:aqua;"">Add Store</a></li>
+    </ul>
+  </nav>
+
+<body class="bg-black text-white flex justify-center items-center h-screen">
+    <div class="bg-gray-800 px-6 py-8 rounded-md">
+        <h1 class="text-3xl font-bold mb-8 text-center">Add Store</h1>
+        <div class="flex flex-col">
+            <label for="store" class="mb-2">Store:</label>
+            <input type="text" id="store"
+                class="mb-4 px-4 py-2 rounded-md bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-600" />
+            <label for="lat" class="mb-2">Latitude:</label>
+            <input type="number" id="lat"
+                class="mb-4 px-4 py-2 rounded-md bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-600" />
+            <label for="long" class="mb-2">Longitude:</label>
+            <input type="number" id="long"
+                class="mb-6 px-4 py-2 rounded-md bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-600" />
+            <label for="password" class="mb-2">Password</label>
+            <input type="password" id="password"
+                class="mb-4 px-4 py-2 rounded-md bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-600" />
+            <button id="submit"
+                class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-600">
+                Add Store
+            </button>
+            <button id="get-location"
+                class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-600">
+                Get Location
+            </button>
+            <div id="response" class="mt-4 text-center"></div>
+        </div>
+    </div>
+    <script>
+        const submitButton = document.getElementById('submit');
+        const responseDiv = document.getElementById('response');
+        const getLocationButton = document.getElementById('get-location');
+
+        submitButton.addEventListener('click', () => {
+            const store = document.getElementById('store').value;
+            const lat = document.getElementById('lat').value;
+            const long = document.getElementById('long').value;
+            const password = document.getElementById('password').value;
+
+            fetch('/add-store', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    store,
+                    lat,
+                    long,
+                    password
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data.status)
+                    if (data.status === 'added') {
+                        responseDiv.innerText = `Store added successfully: ${store} with coordinates (${lat}, ${long})`;
+                        document.getElementById('store').value = '';
+                        document.getElementById('lat').value = '';
+                        document.getElementById('long').value = '';
+                        document.getElementById('password').value = '';
+                    } else if (data.status === 'store already exists') {
+                        responseDiv.innerText = `Error: ${store} already exists. Please choose a different store name.`;
+                    } else if (data.status === 'invalid password') {
+                        responseDiv.innerText = 'Error: Invalid password';
+                    } else {
+                        responseDiv.innerText = 'Error: Something went wrong. Please try again later.';
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                    responseDiv.innerText = 'Error: Something went wrong. Please try again later.';
+                });
+        });
+        getLocationButton.addEventListener('click', () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const lat = position.coords.latitude;
+                    const long = position.coords.longitude;
+                    document.getElementById('lat').value = lat;
+                    document.getElementById('long').value = long;
+                }, error => {
+                    console.error(error);
+                    responseDiv.innerText = 'Error: Could not get your location. Please make sure location services are enabled.';
+                });
+            } else {
+                responseDiv.innerText = 'Error: Your browser does not support geolocation.';
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Billing Page</title>
+ 
+  <style>
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      text-align: left;
+      padding: 8px;
+    }
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+    .button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+  
+</head>
+<body>
+  <h1>Billing Page</h1>
+  <h2>Available Stock</h2>
+  <table id="stock_table">
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th>Stock</th>
+        <th>Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Table rows for available stock of items will be added dynamically using jQuery -->
+    </tbody>
+  </table>
+  <h2>Cart</h2>
+  <table id="cart_table">
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Total Cost</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Table rows for items added to cart will be added dynamically using jQuery -->
+    </tbody>
+  </table>
+  <h3>Add Item</h3>
+  <label for="name_input">Item Name:</label>
+  <input type="text" id="name_input"><br><br>
+  <label for="price_input">Item Price:</label>
+  <input type="text" id="price_input"><br><br>
+  <label for="quantity_input">Quantity:</label>
+  <input type="text" id="quantity_input"><br><br>
+  <button id="add_button" class="button">Add Item</button>
+  <h3>Actions</h3>
+  <button id="generate_button" class="button">Generate Invoice</button>
+  <button id="update_button" class="button">Update Stock</button>
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+
+</body>
+<script>
+  let storeName = 'ebins store';
+    $(document).ready(function(){
+      // Retrieve the available stock of items from the server
+      $.ajax({
+        url: `/store/${storeName}`,
+        success: function(data){
+          console.log(data);
+          // Display the available stock of items in a table
+          $("#stock_table tbody").empty();
+          $.each(data.items, function(i, item){
+            var row = "<tr><td>" + item.name + "</td><td>" + item.stock + "</td><td>"+item.price+"</td></tr>";
+            $("#stock_table tbody").append(row);
+          });
+        }
+      });
+
+      // Add an item to the cart
+      $("#add_button").click(function(){
+        var name = $("#name_input").val();
+        var price = parseFloat($("#price_input").val());
+        var quantity = parseInt($("#quantity_input").val());
+
+        // Calculate the total cost of the item(s) added to the cart
+        var total_cost = price * quantity;
+
+        // Add a row to the cart table
+      var row = "<tr><td>" + name + "</td><td>" + price + "</td><td>" + quantity + "</td><td>" + total_cost.toFixed(2) + "</td></tr>";
+      $("#cart_table tbody").append(row);
+
+      // Clear the input fields
+      $("#name_input").val("");
+      $("#price_input").val("");
+      $("#quantity_input").val("");
+    });
+})
+    // Generate a PDF invoice
+    $("#generate_button").click(function(){
+      // Create a new PDF document
+     // Create a new PDF document
+var doc = new jsPDF();
+
+// Set the document metadata
+doc.setProperties({
+  title: "Invoice",
+  subject: "Invoice",
+  author: "Your Company Name",
+  keywords: "Invoice, PDF, Your Company Name",
+  creator: "Your Company Name"
+});
+
+// Define the columns and rows for the invoice table
+var columns = ["Item", "Price", "Quantity", "Total Cost"];
+var data = [];
+$("#cart_table tbody tr").each(function(){
+  var rowData = [];
+  $(this).find("td").each(function(){
+    rowData.push($(this).text());
+  });
+  data.push(rowData);
+});
+
+// Calculate the width of each column
+var columnWidths = [50, 25, 25, 25];
+var startY = 50;
+var rowHeight = 8;
+var cellPadding = 2;
+
+// Add the column headers
+doc.setFontSize(14);
+doc.setFontType("bold");
+doc.text(columns[0], 10, startY + rowHeight);
+doc.text(columns[1], 60, startY + rowHeight);
+doc.text(columns[2], 85, startY + rowHeight);
+doc.text(columns[3], 110, startY + rowHeight);
+
+// Add the table data
+doc.setFontSize(12);
+doc.setFontType("normal");
+for (var i = 0; i < data.length; i++) {
+  var row = data[i];
+  for (var j = 0; j < row.length; j++) {
+    var cellText = row[j];
+    var x = 10 + (columnWidths[j] + cellPadding) * j;
+    var y = startY + (rowHeight + cellPadding) * (i + 1);
+    doc.text(cellText, x, y);
+  }
+}
+
+// Save the PDF document
+doc.save("invoice.pdf");
+
+
+    // Update the stock of items on the server
+    $("#update_button").click(function(){
+      // Define an array to hold the updated stock values
+      var updated_stock = [];
+
+      // Loop through the rows in the stock table
+      $("#stock_table tbody tr").each(function(){
+        var name = $(this).find("td:eq(0)").text();
+        var stock = parseInt($(this).find("td:eq(1)").text());
+
+        // Loop through the rows in the cart table to calculate the total quantity of each item
+        var total_quantity = 0;
+        $("#cart_table tbody tr").each(function(){
+          if($(this).find("td:eq(0)").text() == name){
+            total_quantity += parseInt($(this).find("td:eq(2)").text());
+          }
+        });
+
+        // Calculate the updated stock value
+        var new_stock = stock - total_quantity;
+
+        // Add the updated stock value to the array
+        updated_stock.push({
+          name: name,
+          stock: new_stock
+        });
+      });
+
+      // Send the updated stock values to the server
+      $.ajax({
+        url: "update_stock.php",
+        type: "POST",
+        data: {updated_stock: updated_stock},
+        success: function(){
+          alert("Stock updated successfully.");
+        },
+        error: function(){
+          alert("Error updating stock.");
+        }
+      });
+    });
+  });
+</script>
+</html>
